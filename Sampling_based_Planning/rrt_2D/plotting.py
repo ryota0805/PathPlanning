@@ -11,7 +11,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Sampling_based_Planning/")
 
-from Sampling_based_Planning.rrt_2D import env
+from rrt_2D import env
 
 
 class Plotting:
@@ -65,8 +65,8 @@ class Plotting:
                 )
             )
 
-        plt.plot(self.xI[0], self.xI[1], "bs", linewidth=3)
-        plt.plot(self.xG[0], self.xG[1], "gs", linewidth=3)
+        plt.plot(self.xI[0], self.xI[1], "bp", linewidth=3)
+        plt.plot(self.xG[0], self.xG[1], "gp", linewidth=3)
 
         plt.title(name)
         plt.axis("equal")

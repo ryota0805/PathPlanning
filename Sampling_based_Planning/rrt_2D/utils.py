@@ -11,8 +11,8 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Sampling_based_Planning/")
 
-from Sampling_based_Planning.rrt_2D import env
-from Sampling_based_Planning.rrt_2D.rrt import Node
+from rrt_2D import env
+from rrt_2D.rrt import Node
 
 
 class Utils:
@@ -29,6 +29,7 @@ class Utils:
         self.obs_boundary = obs_bound
         self.obs_rectangle = obs_rec
 
+    #マージンを考慮した矩形障害物の4頂点をlistに保存
     def get_obs_vertex(self):
         delta = self.delta
         obs_list = []
@@ -64,10 +65,12 @@ class Utils:
 
         return False
 
+    #円形領域とセグメントとの衝突判定
     def is_intersect_circle(self, o, d, a, r):
         d2 = np.dot(d, d)
         delta = self.delta
 
+        #セグメントの長さが0の時、衝突は発生しない
         if d2 == 0:
             return False
 
@@ -80,13 +83,16 @@ class Utils:
 
         return False
 
+    #衝突判定を行う関数。衝突が発生するならTrue,そうでなければFalseを返す
     def is_collision(self, start, end):
+        #セグメントの端点が障害物領域外にあるかどうか
         if self.is_inside_obs(start) or self.is_inside_obs(end):
             return True
 
         o, d = self.get_ray(start, end)
         obs_vertex = self.get_obs_vertex()
 
+        #矩形障害物の4頂点とセグメントが交わるかどうかをチェック
         for (v1, v2, v3, v4) in obs_vertex:
             if self.is_intersect_rec(start, end, o, d, v1, v2):
                 return True
@@ -97,13 +103,16 @@ class Utils:
             if self.is_intersect_rec(start, end, o, d, v4, v1):
                 return True
 
+        #円形領域とセグメントが交わるかどうかをチェック
         for (x, y, r) in self.obs_circle:
             if self.is_intersect_circle(o, d, [x, y], r):
                 return True
 
         return False
 
+    #ノードが障害物領域外にあればFalse,そうでなければTrueを返す
     def is_inside_obs(self, node):
+        #ある程度マージンを確保するための変数delta
         delta = self.delta
 
         for (x, y, r) in self.obs_circle:
