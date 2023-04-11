@@ -7,6 +7,7 @@ import os
 import sys
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
                 "/../../Sampling_based_Planning/")
@@ -55,8 +56,9 @@ class Rrt:
                 #距離が閾値以下かつそのセグメントが領域外ならゴールの親ノードに新しいノードを設定し、pathの探索を終了
                 if dist <= self.step_len and not self.utils.is_collision(node_new, self.s_goal):
                     self.new_state(node_new, self.s_goal)
+                    self.sampling_number = i
                     return self.extract_path(node_new)
-
+           
         return None
 
     #ランダムにノードをサンプリングするclass
@@ -115,15 +117,74 @@ def main():
     x_goal = (49, 24)  # Goal node
     
     #0.05の確率でゴールのノードをサンプリング
-    rrt = Rrt(x_start, x_goal, 5, 0.05, 10000)
+    rrt = Rrt(x_start, x_goal, 0.5, 0.05, 10000)
     path = rrt.planning()
-
+    processed_path = rrt.utils.post_processing(path)
+    print("Sampling count is {}".format(rrt.sampling_number))
+    print("Number of path nodes is {}".format(len(path)))
+    print("Number of post-processed path nodes is {}".format(len(processed_path)))
     #アニメーションの作成
     if path:
         rrt.plotting.animation(rrt.vertex, path, "RRT", True)
+        rrt.plotting.animation(rrt.vertex, processed_path, "RRT", False)
     else:
         print("No Path Found!")
 
-
+def main2():
+    x_start = (2, 2)  # Starting node
+    x_goal = (49, 24)  # Goal node
+    
+    #指定回数だけRRTを繰り返し、生成されるpathのノード数、サンプリング数を保存
+    #反復回数
+    iteration = 100
+    
+    sampling = []
+    path_node_count = []
+    post_processed_path_node_count = []
+    for i in range(iteration):
+        rrt = Rrt(x_start, x_goal, 5, 0.05, 10000)
+        path = rrt.planning()
+        #processed_path = rrt.utils.post_processing(path)
+        
+        sampling.append(rrt.sampling_number)
+        path_node_count.append(len(path))
+        #post_processed_path_node_count.append(len(processed_path))
+        
+        print("{}%".format(i))
+    #ヒストグラムの作成
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots()
+    #fig3, ax3 = plt.subplots()
+    
+    ax1.hist(sampling)
+    ax2.hist(path_node_count)
+    #ax3.hist(post_processed_path_node_count)
+        
+    plt.show()
+    
+def main3():
+    x_start = (2, 2)  # Starting node
+    x_goal = (49, 24)  # Goal node
+    
+    #0.05の確率でゴールのノードをサンプリング
+    rrt = Rrt(x_start, x_goal, 5, 0.05, 10000)
+    path = rrt.planning()
+    #processed_path = rrt.utils.post_processing(path)
+    #print("Sampling count is {}".format(rrt.sampling_number))
+    #print("Number of path nodes is {}".format(len(path)))
+    #print("Number of post-processed path nodes is {}".format(len(processed_path)))
+    #アニメーションの作成
+    if path:
+        rrt.plotting.animation(rrt.vertex, path, "RRT", True)
+        #rrt.plotting.animation(rrt.vertex, processed_path, "RRT", False)
+    else:
+        print("No Path Found!")
+    
+    for i in range(len(path)-1):
+        start = Node(path[i])
+        end = Node(path[i + 1])
+        print(rrt.utils.is_collision(start, end))
+        
 if __name__ == '__main__':
     main()
+

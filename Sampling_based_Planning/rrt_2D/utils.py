@@ -130,7 +130,35 @@ class Utils:
                 return True
 
         return False
-
+    
+    #pathのノードを減らす後処理
+    def post_processing(self, path):
+        length = len(path)
+        processed_path = [path[0]]
+        i, j = 0, 1
+        while True:
+            start = Node(path[i])
+            end = Node(path[j])
+            print(i, j, self.is_collision(start, end))
+            #衝突する場合
+            if self.is_collision(start, end):
+                processed_path.append(path[j-1])
+                i = j - 1
+                print("a")
+            #衝突しない場合   
+            else:
+                j += 1
+                print("b")
+                if j == length:
+                    break
+                else:
+                    continue
+        processed_path.append(path[-1])
+        
+        return processed_path
+                        
+        
+        
     @staticmethod
     def get_ray(start, end):
         orig = [start.x, start.y]

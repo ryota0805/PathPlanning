@@ -30,6 +30,13 @@ class Env:
             [26, 7, 2, 12],
             [32, 14, 10, 2]
         ]
+        
+        obs_rectangle = [
+            [10, 3, 15, 10],
+            [27, 18, 15, 10]
+        ]
+        
+        #obs_rectangle = []
         return obs_rectangle
 
     @staticmethod
